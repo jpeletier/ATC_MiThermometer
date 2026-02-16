@@ -39,6 +39,12 @@ static u32 set_bthome_data1(padv_bthome_data1_t p) {
 		p->temperature2 = measured_data.xtemp[1]; // x0.01 C
 #endif
 #endif
+
+
+	p->sp_id = BtHomeID_temperature;
+	p->setpoint = cmf.t[0]; // x0.01 C
+
+
 #if (DEV_SERVICES & (SERVICE_THS | SERVICE_PLM))
 		p->t_id = BtHomeID_temperature;
 		p->temperature = measured_data.temp; // x0.01 C
