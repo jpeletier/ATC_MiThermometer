@@ -70,8 +70,10 @@ extern "C" {
 //#define TEST_PLM1 			1  // TB03F My Plant monitor
 
 #ifndef DEVICE_TYPE
-#define DEVICE_TYPE			DEVICE_TS0201
+#define DEVICE_TYPE			DEVICE_MJWSD06MMC
 #endif
+
+#define USE_THERMOSTAT 1 # enable thermostat mode
 
 // supported services by the device (bits)
 #define SERVICE_OTA			0x00000001	// OTA all enable!

@@ -320,6 +320,29 @@ typedef struct _comfort_t {
 }scomfort_t, * pcomfort_t;
 extern scomfort_t cmf;
 
+
+#ifdef USE_THERMOSTAT
+
+// Constants
+#define SETPOINT_MODE_TIMEOUT    (5 * CLOCK_16M_SYS_TIMER_CLK_1S)  // 5 seconds
+#define SETPOINT_MIN_TEMP        (1500)  // 15.00°C x0.01
+#define SETPOINT_MAX_TEMP        (2500)  // 25.00°C x0.01
+#define SETPOINT_STEP            (50)    // 0.5°C increment x0.01
+
+// Setpoint adjustment mode structure
+typedef struct {
+    u8  mode_active;           // 1 = in setpoint adjustment mode
+	s16 new_setpoint;
+    u32 mode_timeout_tick;     // timestamp for 5-second timeout
+} setpoint_mode_t;
+extern setpoint_mode_t setpoint_mode;
+
+
+#endif
+
+
+
+
 #if (DEV_SERVICES & SERVICE_BINDKEY)
 extern u8 bindkey[16];
 void bindkey_init(void);

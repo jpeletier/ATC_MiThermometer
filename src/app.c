@@ -72,6 +72,11 @@ const scomfort_t def_cmf = {
 };
 #endif
 
+#ifdef USE_THERMOSTAT
+RAM setpoint_mode_t setpoint_mode = {0};
+#endif
+
+
 // Settings
 const cfg_t def_cfg = {
 		.flg.temp_F_or_C = false,
@@ -930,6 +935,13 @@ void user_init_normal(void) {//this will get executed one time after power up
 	task_my18b20();
 #endif
 
+#ifdef USE_THERMOSTAT
+	// Initialize setpoint mode (use cmf global)
+	setpoint_mode.mode_active = 0;
+	setpoint_mode.new_setpoint = cmf.t[0];
+	setpoint_mode.mode_timeout_tick = 0;
+#endif
+
 	bls_pm_setManualLatency(0);
 }
 
@@ -1011,8 +1023,24 @@ void main_loop(void) {
 				ext_key.key2pressed = 1;
 				ext_key.key_pressed_tik1 = new;
 				ext_key.key_pressed_tik2 = new;
-				set_adv_con_time(0); // set connection adv.
-				SET_LCD_UPDATE();
+#ifdef USE_THERMOSTAT
+			    // Handle setpoint mode entry or increment
+				if(!setpoint_mode.mode_active) {
+					// ENTER SETPOINT MODE
+					setpoint_mode.mode_active = 1;
+					setpoint_mode.new_setpoint = cmf.t[0];
+				} else {
+					// ALREADY IN MODE - INCREMENT SETPOINT
+					setpoint_mode.new_setpoint += SETPOINT_STEP;  // +0.5°C
+					
+					// Wrap around: if > 25°C, reset to 15°C
+					if(setpoint_mode.new_setpoint > SETPOINT_MAX_TEMP) {
+						setpoint_mode.new_setpoint = SETPOINT_MIN_TEMP;
+					}
+				}
+				setpoint_mode.mode_timeout_tick = new;
+				SET_LCD_UPDATE();  // Flag to update display
+#else // USE_THERMOSTAT
 #if (DEV_SERVICES & SERVICE_RDS) || (DEV_SERVICES & SERVICE_TH_TRG)
 				trg.flg.key_pressed = 1;
 #endif
@@ -1069,6 +1097,7 @@ void main_loop(void) {
 #endif // LED_ON
 #endif
 				}
+#endif // USE_THERMOSTAT
 			}
 		}
 		else {
@@ -1085,6 +1114,25 @@ void main_loop(void) {
 #endif
 #endif
 		}
+#ifdef USE_THERMOSTAT
+		// Handle setpoint mode timeout
+		if(setpoint_mode.mode_active) {
+			u32 elapsed = new - setpoint_mode.mode_timeout_tick;
+			
+			if(elapsed > SETPOINT_MODE_TIMEOUT) {
+				// TIMEOUT - EXIT SETPOINT MODE
+				// Save comfort temperature to flash
+				if(cmf.t[0] != setpoint_mode.new_setpoint) {
+					cmf.t[0] = setpoint_mode.new_setpoint;
+					//flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
+				}
+				
+				// Exit mode
+				setpoint_mode.mode_active = 0;
+			}
+			SET_LCD_UPDATE(); // allow blinking or restore to normal if exited
+		}
+#endif // USE_THERMOSTAT
 #endif // (DEV_SERVICES & SERVICE_KEY)
 #if (DEV_SERVICES & SERVICE_KEY) || (DEV_SERVICES & SERVICE_RDS)
 		if(ext_key.rest_adv_int_tad < -80) {
