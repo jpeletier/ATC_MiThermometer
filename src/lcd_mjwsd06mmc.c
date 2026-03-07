@@ -239,6 +239,14 @@ __attribute__((optimize("-Os"))) void show_big_number_x10(s16 number){
 	}
 }
 
+/* Show "oFF" on the big display area */
+_attribute_ram_code_
+__attribute__((optimize("-Os"))) void show_off(void) {
+	display_buff[5] = LCD_SYM1_o;          // "o"
+	display_buff[4] = display_numbers[15]; // "F"
+	display_buff[3] = display_numbers[15]; // "F"
+}
+
 /* -9 .. 99 */
 _attribute_ram_code_
 __attribute__((optimize("-Os"))) void show_small_number(s16 number, bool percent){

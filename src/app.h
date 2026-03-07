@@ -333,13 +333,13 @@ extern scomfort_t cmf;
 #define SETPOINT_STEP            (50)    // 0.5°C increment x0.01
 
 // Setpoint adjustment mode structure
+// mode_active values: 0 = normal, 1 = adjusting setpoint, 2 = oFF state
 typedef struct {
-    u8  mode_active;           // 1 = in setpoint adjustment mode
+    u8  mode_active;
 	s16 new_setpoint;
     u32 mode_timeout_tick;     // timestamp for 5-second timeout
 } setpoint_mode_t;
 extern setpoint_mode_t setpoint_mode;
-
 
 #endif
 

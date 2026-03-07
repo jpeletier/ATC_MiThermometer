@@ -73,7 +73,7 @@ extern "C" {
 #define DEVICE_TYPE			DEVICE_MJWSD06MMC
 #endif
 
-#define USE_THERMOSTAT 1 # enable thermostat mode
+#define USE_THERMOSTAT 1 // enable thermostat mode
 
 // supported services by the device (bits)
 #define SERVICE_OTA			0x00000001	// OTA all enable!

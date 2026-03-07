@@ -80,9 +80,12 @@ void lcd(void) {
 
 
         if((elapsed / blink_period) % 2 == 0) {
-            // Show setpoint
-			show_big_number_x10(setpoint_mode.new_setpoint / 10);
-			show_temp_symbol(TMP_SYM_C);
+			if(setpoint_mode.mode_active == 2) {
+				show_off();
+			} else {
+				show_big_number_x10(setpoint_mode.new_setpoint / 10);
+				show_temp_symbol(TMP_SYM_C);
+			}
         }
 		return;
     }

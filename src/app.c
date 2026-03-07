@@ -1027,22 +1027,31 @@ void main_loop(void) {
 				ext_key.key_pressed_tik1 = new;
 				ext_key.key_pressed_tik2 = new;
 #ifdef USE_THERMOSTAT
-			    // Handle setpoint mode entry or increment
 				if(!setpoint_mode.mode_active) {
-					// ENTER SETPOINT MODE
-					setpoint_mode.mode_active = 1;
-					setpoint_mode.new_setpoint = cmf.t[0];
-				} else {
-					// ALREADY IN MODE - INCREMENT SETPOINT
-					setpoint_mode.new_setpoint += SETPOINT_STEP;  // +0.5°C
-					
-					// Wrap around: if > 25°C, reset to 15°C
-					if(setpoint_mode.new_setpoint > SETPOINT_MAX_TEMP) {
-						setpoint_mode.new_setpoint = SETPOINT_MIN_TEMP;
+					// ENTER MODE
+					if(cmf.thermostat_enabled) {
+						// Thermostat on: start adjusting from current setpoint
+						setpoint_mode.mode_active = 1;
+						setpoint_mode.new_setpoint = cmf.t[0];
+					} else {
+						// Thermostat off: show oFF first, preload saved setpoint for next press
+						setpoint_mode.mode_active = 2;
+						setpoint_mode.new_setpoint = cmf.t[0];
 					}
+				} else if(setpoint_mode.mode_active == 1) {
+					// INCREMENT SETPOINT
+					setpoint_mode.new_setpoint += SETPOINT_STEP;  // +0.5°C
+					if(setpoint_mode.new_setpoint > SETPOINT_MAX_TEMP) {
+						// Past max: enter oFF state, preload MIN for next press
+						setpoint_mode.new_setpoint = SETPOINT_MIN_TEMP;
+						setpoint_mode.mode_active = 2;
+					}
+				} else {
+					// IN oFF STATE: move to setpoint (preloaded in new_setpoint)
+					setpoint_mode.mode_active = 1;
 				}
 				setpoint_mode.mode_timeout_tick = new;
-				SET_LCD_UPDATE();  // Flag to update display
+				SET_LCD_UPDATE();
 #else // USE_THERMOSTAT
 #if (DEV_SERVICES & SERVICE_RDS) || (DEV_SERVICES & SERVICE_TH_TRG)
 				trg.flg.key_pressed = 1;
@@ -1121,16 +1130,17 @@ void main_loop(void) {
 		// Handle setpoint mode timeout
 		if(setpoint_mode.mode_active) {
 			u32 elapsed = new - setpoint_mode.mode_timeout_tick;
-			
 			if(elapsed > SETPOINT_MODE_TIMEOUT) {
-				// TIMEOUT - EXIT SETPOINT MODE
-				// Save comfort temperature to flash
-				if(cmf.t[0] != setpoint_mode.new_setpoint) {
+				// TIMEOUT - COMMIT AND EXIT
+				if(setpoint_mode.mode_active == 2) {
+					// Left in oFF: disable thermostat, leave setpoint unchanged
+					cmf.thermostat_enabled = 0;
+				} else {
+					// Left on a temperature: enable thermostat, save setpoint
+					cmf.thermostat_enabled = 1;
 					cmf.t[0] = setpoint_mode.new_setpoint;
-					//flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
 				}
-				
-				// Exit mode
+				flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
 				setpoint_mode.mode_active = 0;
 			}
 			SET_LCD_UPDATE(); // allow blinking or restore to normal if exited
