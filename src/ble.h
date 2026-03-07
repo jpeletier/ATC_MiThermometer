@@ -186,6 +186,9 @@ void ble_send_measures(void);
 void ble_send_ext(void);
 void ble_send_lcd(void);
 void ble_send_cmf(void);
+#ifdef USE_THERMOSTAT
+void ble_send_thermostat(void);
+#endif
 #if (DEV_SERVICES & SERVICE_RDS) || (DEV_SERVICES & SERVICE_TH_TRG)
 void ble_send_trg(void);
 void ble_send_trg_flg(void);

@@ -168,13 +168,18 @@ typedef struct __attribute__((packed)) _adv_bthome_data1_t {
 #endif
 
 #ifdef USE_THERMOSTAT
-u8  sp_id;      // = BtHomeID_temperature or new ID for setpoint
+u8  sp_id;      // = BtHomeID_temperature
 s16 setpoint;   // x 0.01 degree (reusing existing BtHome temp format)
 #endif
 
 #if (DEV_SERVICES & (SERVICE_THS | SERVICE_PLM))
 	u8	h_id;	// = BtHomeID_humidity
 	u16	humidity; // x 0.01 %
+#endif
+
+#ifdef USE_THERMOSTAT
+u8 thermostat_id;      // = BtHomeID_running
+u8 thermostat_enabled;  
 #endif
 
 

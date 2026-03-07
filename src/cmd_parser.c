@@ -536,13 +536,25 @@ void cmd_parser(void * p) {
 			olen = 2;
 #endif
 #if (DEV_SERVICES & SERVICE_SCREEN)
-		} else if (cmd == CMD_ID_COMFORT) { // Get/set comfort parameters
+		} else if (cmd == CMD_ID_COMFORT) { // Get/set comfort parameters (temperature/humidity only)
 			if (len) {
+#ifdef USE_THERMOSTAT
+				unsigned short cmf_th_size = sizeof(cmf.t) + sizeof(cmf.h);
+				if (len > cmf_th_size) len = cmf_th_size;
+#else
 				if (len > sizeof(cmf)) len = sizeof(cmf);
+#endif
 				memcpy(&cmf, &req->dat[1], len);
 			}
 			flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
 			ble_send_cmf();
+#ifdef USE_THERMOSTAT
+		} else if (cmd == CMD_ID_THERMOSTAT) { // Get/Set thermostat enabled flag
+			if (len)
+				cmf.thermostat_enabled = req->dat[1] ? 1 : 0;
+			flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
+			ble_send_thermostat();
+#endif
 #endif
 		} else if (cmd == CMD_ID_DNAME) { // Get/Set device name
 			if (len) {

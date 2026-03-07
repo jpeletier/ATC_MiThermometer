@@ -20,7 +20,10 @@ enum {
 	CMD_ID_MI_REST  = 0x16, // Restore prev mi token & bindkeys
 	CMD_ID_MI_CLR	= 0x17, // Delete all mi keys
 	CMD_ID_BKEY		= 0x18, // Get/Set beacon bindkey in EEP
-	CMD_ID_COMFORT  = 0x20, // Get/Set comfort parameters
+	CMD_ID_COMFORT  = 0x20, // Get/Set comfort parameters (temperature/humidity only)
+#ifdef USE_THERMOSTAT
+	CMD_ID_THERMOSTAT = 0x2d, // Get/Set thermostat enabled flag
+#endif
 	CMD_ID_SCAN_CFG = 0x21, // Get/Set Scan Config parameters
 	CMD_ID_EXTDATA  = 0x22, // Get/Set show ext. data
 	CMD_ID_UTC_TIME = 0x23, // Get/Set utc time (if USE_CLOCK = 1)

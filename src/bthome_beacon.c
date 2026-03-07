@@ -43,6 +43,8 @@ static u32 set_bthome_data1(padv_bthome_data1_t p) {
 #ifdef USE_THERMOSTAT
 	p->sp_id = BtHomeID_temperature;
 	p->setpoint = cmf.t[0]; // x0.01 C
+	p->thermostat_id = BtHomeID_running;
+	p->thermostat_enabled = cmf.thermostat_enabled;
 #endif
 
 #if (DEV_SERVICES & (SERVICE_THS | SERVICE_PLM))

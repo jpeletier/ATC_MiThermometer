@@ -870,6 +870,14 @@ void ble_send_cmf(void) {
 	memcpy(&send_buf[1], &cmf, sizeof(cmf));
 	bls_att_pushNotifyData(RxTx_CMD_OUT_DP_H, send_buf, sizeof(cmf) + 1);
 }
+
+#ifdef USE_THERMOSTAT
+void ble_send_thermostat(void) {
+	send_buf[0] = CMD_ID_THERMOSTAT;
+	send_buf[1] = cmf.thermostat_enabled;
+	bls_att_pushNotifyData(RxTx_CMD_OUT_DP_H, send_buf, 2);
+}
+#endif // USE_THERMOSTAT
 #endif
 
 #if (DEV_SERVICES & SERVICE_TH_TRG) || (DEV_SERVICES & SERVICE_RDS)

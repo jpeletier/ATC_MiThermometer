@@ -317,6 +317,9 @@ extern work_flg_t wrk;
 typedef struct _comfort_t {
 	s16  t[2];
 	u16 h[2];
+#ifdef USE_THERMOSTAT
+	u8 thermostat_enabled;
+#endif
 }scomfort_t, * pcomfort_t;
 extern scomfort_t cmf;
 

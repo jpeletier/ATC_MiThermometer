@@ -69,6 +69,9 @@ RAM scomfort_t cmf;
 const scomfort_t def_cmf = {
 		.t = {2100,2600}, // x0.01 C
 		.h = {3000,6000}  // x0.01 %
+#ifdef USE_THERMOSTAT
+		,.thermostat_enabled = 0
+#endif
 };
 #endif
 
