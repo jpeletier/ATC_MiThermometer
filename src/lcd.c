@@ -212,7 +212,11 @@ void lcd(void) {
 			} else {
 #if	(SHOW_SMILEY)
 				if (cfg.flg.comfort_smiley) { // comfort on
+#ifdef USE_THERMOSTAT
+					show_smiley(cmf.thermostat_enabled ? is_comfort(measured_data.temp, measured_data.humi) : SMILE_NONE);
+#else
 					show_smiley(is_comfort(measured_data.temp, measured_data.humi));
+#endif
 				} else
 					show_smiley(cfg.flg2.smiley);
 #endif
@@ -220,7 +224,11 @@ void lcd(void) {
 		} else {
 #if	(SHOW_SMILEY)
 			if (cfg.flg.comfort_smiley) { // comfort on
+#ifdef USE_THERMOSTAT
+				show_smiley(cmf.thermostat_enabled ? is_comfort(measured_data.temp, measured_data.humi) : SMILE_NONE);
+#else
 				show_smiley(is_comfort(measured_data.temp, measured_data.humi));
+#endif
 			} else
 				show_smiley(cfg.flg2.smiley);
 #endif

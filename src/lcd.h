@@ -44,6 +44,7 @@ extern u8 lcd_i2c_addr; // LCD controller I2C address
 /* CGG1 no symbol 'smiley' ! */
 #define SMILE_HAPPY 5 		// "(^-^)" happy
 #define SMILE_SAD   6 		// "(-^-)" sad
+#define SMILE_NONE  4		// "(   )" empty face (thermostat off)
 #define TMP_SYM_C	0xA0	// "°C"
 #define TMP_SYM_F	0x60	// "°F"
 
