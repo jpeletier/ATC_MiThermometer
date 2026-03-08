@@ -328,12 +328,13 @@ extern scomfort_t cmf;
 
 // Constants
 #define SETPOINT_MODE_TIMEOUT    (5 * CLOCK_16M_SYS_TIMER_CLK_1S)  // 5 seconds
+#define SETPOINT_CONFIRM_TIMEOUT (500 * CLOCK_16M_SYS_TIMER_CLK_1MS) // 0.5 second "SEt" confirmation
 #define SETPOINT_MIN_TEMP        (1500)  // 15.00°C x0.01
 #define SETPOINT_MAX_TEMP        (2500)  // 25.00°C x0.01
 #define SETPOINT_STEP            (50)    // 0.5°C increment x0.01
 
 // Setpoint adjustment mode structure
-// mode_active values: 0 = normal, 1 = adjusting setpoint, 2 = oFF state
+// mode_active values: 0 = normal, 1 = adjusting setpoint, 2 = oFF state, 3 = "SEt" confirmation
 typedef struct {
     u8  mode_active;
 	s16 new_setpoint;

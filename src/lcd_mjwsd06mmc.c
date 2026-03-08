@@ -247,6 +247,14 @@ __attribute__((optimize("-Os"))) void show_off(void) {
 	display_buff[3] = display_numbers[15]; // "F"
 }
 
+/* Show "SEt" on the big display area */
+_attribute_ram_code_
+__attribute__((optimize("-Os"))) void show_set(void) {
+	display_buff[5] = display_numbers[5];  // "S" (same segments as "5")
+	display_buff[4] = display_numbers[14]; // "E"
+	display_buff[3] = LCD_SYM1_t;         // "t"
+}
+
 /* -9 .. 99 */
 _attribute_ram_code_
 __attribute__((optimize("-Os"))) void show_small_number(s16 number, bool percent){

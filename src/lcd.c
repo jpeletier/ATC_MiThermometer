@@ -66,27 +66,27 @@ void lcd(void) {
 		return;
 #ifdef USE_THERMOSTAT
     if(setpoint_mode.mode_active) {
-        // Calculate blink effect
-        u32 elapsed = clock_time() - setpoint_mode.mode_timeout_tick;
-        u32 blink_period = 250 * CLOCK_16M_SYS_TIMER_CLK_1MS;
-
-		//clear:
-		display_buff[0] = 0; // " "
-		display_buff[1] = 0; // " "
+		u32 elapsed = clock_time() - setpoint_mode.mode_timeout_tick;
+		u32 blink_period = 250 * CLOCK_16M_SYS_TIMER_CLK_1MS;
+		display_buff[0] = 0;
+		display_buff[1] = 0;
 		display_buff[2] = 0;
 		display_buff[3] = 0;
 		display_buff[4] = 0;
-		display_buff[5] = 0; // "O"
+		display_buff[5] = 0;
 
-
-        if((elapsed / blink_period) % 2 == 0) {
+		if(setpoint_mode.mode_active == 3) {
+			// Confirmation: show "SEt" steadily
+			show_set();
+		} else if((elapsed / blink_period) % 2 == 0) {
+			// Blink the current setting
 			if(setpoint_mode.mode_active == 2) {
 				show_off();
 			} else {
 				show_big_number_x10(setpoint_mode.new_setpoint / 10);
 				show_temp_symbol(TMP_SYM_C);
 			}
-        }
+		}
 		return;
     }
 #endif // USE_THERMOSTAT

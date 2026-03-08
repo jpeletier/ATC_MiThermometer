@@ -1130,8 +1130,13 @@ void main_loop(void) {
 		// Handle setpoint mode timeout
 		if(setpoint_mode.mode_active) {
 			u32 elapsed = new - setpoint_mode.mode_timeout_tick;
-			if(elapsed > SETPOINT_MODE_TIMEOUT) {
-				// TIMEOUT - COMMIT AND EXIT
+			if(setpoint_mode.mode_active == 3) {
+				// CONFIRMATION PHASE: show "SEt" for a moment then exit
+				if(elapsed > SETPOINT_CONFIRM_TIMEOUT) {
+					setpoint_mode.mode_active = 0;
+				}
+			} else if(elapsed > SETPOINT_MODE_TIMEOUT) {
+				// TIMEOUT - COMMIT AND ENTER CONFIRMATION
 				if(setpoint_mode.mode_active == 2) {
 					// Left in oFF: disable thermostat, leave setpoint unchanged
 					cmf.thermostat_enabled = 0;
@@ -1141,9 +1146,10 @@ void main_loop(void) {
 					cmf.t[0] = setpoint_mode.new_setpoint;
 				}
 				flash_write_cfg(&cmf, EEP_ID_CMF, sizeof(cmf));
-				setpoint_mode.mode_active = 0;
+				setpoint_mode.mode_active = 3;
+				setpoint_mode.mode_timeout_tick = new;
 			}
-			SET_LCD_UPDATE(); // allow blinking or restore to normal if exited
+			SET_LCD_UPDATE();
 		}
 #endif // USE_THERMOSTAT
 #endif // (DEV_SERVICES & SERVICE_KEY)
@@ -1313,6 +1319,14 @@ void main_loop(void) {
 		if(scan.start_tik) {
 			scan_task();
 		} else
+#endif
+#ifdef USE_THERMOSTAT
+		// While blinking, wake every 250ms so the blink period works across deep sleep
+		if(setpoint_mode.mode_active == 1 || setpoint_mode.mode_active == 2) {
+			bls_pm_setAppWakeupLowPower(new + 250 * CLOCK_16M_SYS_TIMER_CLK_1MS, 1);
+		} else {
+			bls_pm_setAppWakeupLowPower(0, 0); // cancel short wakeup when not blinking
+		}
 #endif
 #ifdef	SET_NO_SLEEP_MODE
 		bls_pm_setSuspendMask(SET_NO_SLEEP_MODE);
