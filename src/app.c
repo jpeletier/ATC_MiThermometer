@@ -1039,8 +1039,9 @@ void main_loop(void) {
 						setpoint_mode.new_setpoint = cmf.t[0];
 					}
 				} else if(setpoint_mode.mode_active == 1) {
-					// INCREMENT SETPOINT
-					setpoint_mode.new_setpoint += SETPOINT_STEP;  // +0.5°C
+					// INCREMENT SETPOINT: snap up to next 0.5°C boundary
+					s16 remainder = setpoint_mode.new_setpoint % SETPOINT_STEP;
+					setpoint_mode.new_setpoint += (remainder == 0) ? SETPOINT_STEP : (SETPOINT_STEP - remainder);
 					if(setpoint_mode.new_setpoint > SETPOINT_MAX_TEMP) {
 						// Past max: enter oFF state, preload MIN for next press
 						setpoint_mode.new_setpoint = SETPOINT_MIN_TEMP;
