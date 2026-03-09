@@ -13,3 +13,4 @@ ZBEACON_TH01_v54.bin
 zbeacon_ff_recovery.bin
 /*.bin
 zigbee_ota/*
+esphome/secrets.yaml

@@ -1,3 +1,66 @@
+# Thermostat fork for MJWSD06MMC
+
+This is a fork of [pvvx/ATC_MiThermometer](https://github.com/pvvx/ATC_MiThermometer) with a thermostat feature added, designed specifically for the **MJWSD06MMC** device.
+
+## Thermostat feature
+
+The thermostat exposes a **heating setpoint** and an **on/off state** over BLE (BTHome), allowing a home automation system to use them as control signals for a heating relay or smart valve.
+
+### Single-button UI
+
+The device has one button. Short presses cycle through the following states:
+
+- **Adjusting setpoint** — the display blinks the current setpoint temperature. Each press increments by 0.5 °C.
+- **oFF** — the display blinks `oFF`. Timing out here disables the thermostat.
+
+Full cycle on each press while active:
+
+```
+[normal display]
+      ↓ press (thermostat on)
+[blink: setpoint, e.g. 20.5°C]
+      ↓ press → +0.5°C … repeat …
+[blink: 25.0°C]
+      ↓ press (past max)
+[blink: oFF]
+      ↓ press
+[blink: 15.0°C]  ← wraps to minimum
+      …
+```
+
+If the thermostat is **off**, the first press goes directly to `oFF`. The next press enters setpoint adjustment starting from the saved setpoint.
+
+### Timeout & commit (5 seconds of inactivity)
+
+| State at timeout | Result |
+|---|---|
+| Adjusting setpoint | Thermostat **enabled**, setpoint saved |
+| `oFF` | Thermostat **disabled**, setpoint unchanged |
+
+After committing, the display shows **`SEt`** for 1 second as confirmation, then returns to normal.
+
+### BLE commands
+
+| Command | ID | Description |
+|---|---|---|
+| `CMD_ID_COMFORT` | `0x20` | Get/set comfort temperature and humidity range (t[]/h[] only — does not touch thermostat state) |
+| `CMD_ID_THERMOSTAT` | `0x2d` | Get/set `thermostat_enabled` flag (1 byte: 0 = off, 1 = on) |
+
+### BTHome beacon
+
+The following fields are broadcast in the BTHome advertisement packet:
+
+| Field | BTHome Object ID | Type | Resolution | Notes |
+|---|---|---|---|---|
+| Current temperature | `0x02` (`BtHomeID_temperature`) | int16 | 0.01 °C | Live sensor reading |
+| Humidity | `0x03` (`BtHomeID_humidity`) | uint16 | 0.01 % | Live sensor reading |
+| Setpoint temperature | `0x02` (`BtHomeID_temperature`) | int16 | 0.01 °C | `USE_THERMOSTAT` only — appears as a second temperature object in the packet |
+| Thermostat on/off | `0x27` (`BtHomeID_running`) | uint8 | boolean | `USE_THERMOSTAT` only — `0` = off, `1` = on |
+
+> **Note:** The setpoint reuses `BtHomeID_temperature` (`0x02`) since BTHome has no dedicated setpoint type. Home Assistant will expose it as a second temperature sensor. The thermostat on/off uses `BtHomeID_running` (`0x27`), which maps to a BTHome binary sensor (Running / Not Running).
+
+---
+
 # Custom firmware for BLE thermometers on the Telink chipset.
 
 **Warning:** 
